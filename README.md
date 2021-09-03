@@ -28,11 +28,11 @@ This is equivalent to the Copy-Item cmdlet, but optimized for the file system.
 Enable use of multiple threads to improve throughput.
 Enable useful progress reporting.
 
-### Import-LsColorEnv
+### Get-DiskUsage
 
-This cmdlet will import the `LS_COLORS` environment variable to the current session.
-It will overwrite `$PSStyle.FileInfo` settings derived from the `LS_COLORS` environment variable.
-Changed to the environment variable will require re-execution of this cmdlet.
+Given a path (or pattern), returns folders with their total size, number of files, and number of sub-directories.
+The top level object with path `.` represents the current folder if it contains files.
+It does not represent the total size of the current folder and sub-folders.
 
 ### Enable-FileUtilityAlias
 
