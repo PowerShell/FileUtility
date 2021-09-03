@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>Microsoft.PowerShell.FileUtility.DiskUsageInfo</Name>
+            <ViewSelectedBy>
+                <TypeName>Microsoft.PowerShell.FileUtility.DiskUsageInfo</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <AutoSize/>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>TotalSizeMb</Label>
+                        <Alignment>Right</Alignment>
+                        <Width>10</Width>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Alignment>Right</Alignment>
+                        <Width>10</Width>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Alignment>Right</Alignment>
+                        <Width>10</Width>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Alignment>Left</Alignment>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <ScriptBlock>'{0:n2}' -f ($_.TotalSize / 1mb)</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>TotalFiles</PropertyName>
+                                <FormatString>{0:n0}</FormatString>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>TotalDirectories</PropertyName>
+                                <FormatString>{0:n0}</FormatString>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>Path</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>
