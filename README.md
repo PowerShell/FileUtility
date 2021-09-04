@@ -13,6 +13,7 @@ This is an experimental module for optimizing using PowerShell with the file sys
 - Work side-by-side with existing file system cmdlets which leverage the FileSystemProvider
 - Target compatibility with most common cases for existing file system cmdlet usage
 - Only expose built-in filtering that can leverage .NET API filtering (all other filtering should just use PowerShell pipeline)
+- Identify limits of .NET API (like OneDrive) and get it fixed in .NET API rather than having specialized platform specific pinvokes
 
 ## Non-Goals
 
