@@ -33,7 +33,7 @@
                             <TableColumnItem>
                                 <ScriptBlock>
                                     if ($_.TotalSize -ge 1gb) {
-                                        '{0:n2}' -f ($_.TotalSize / 1gb) + ' GB'
+                                        $PSStyle.Bold + ('{0:n2}' -f ($_.TotalSize / 1gb)) + ' GB'
                                     }
                                     else {
                                         '{0:n2}' -f ($_.TotalSize / 1mb) + ' MB'
@@ -96,7 +96,7 @@
                             <TableColumnItem>
                                 <ScriptBlock>
                                     if ($_.TotalSize -ge 1gb) {
-                                        '{0:n2}' -f ($_.TotalSize / 1gb) + ' GB'
+                                        $PSStyle.Bold + ('{0:n2}' -f ($_.TotalSize / 1gb)) + ' GB'
                                     }
                                     else {
                                         '{0:n2}' -f ($_.TotalSize / 1mb) + ' MB'
@@ -106,7 +106,7 @@
                             <TableColumnItem>
                                 <ScriptBlock>
                                     if ($_.AvailableFreespace -ge 1gb) {
-                                        '{0:n2}' -f ($_.AvailableFreespace / 1gb) + ' GB'
+                                        $PSStyle.Bold + ('{0:n2}' -f ($_.AvailableFreespace / 1gb)) + ' GB'
                                     }
                                     else {
                                         '{0:n2}' -f ($_.AvailableFreespace / 1mb) + ' MB'
