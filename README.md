@@ -34,6 +34,10 @@ Given a path (or pattern), returns folders with their total size, number of file
 The top level object with path `.` represents the current folder if it contains files.
 It does not represent the total size of the current folder and sub-folders.
 
+### Get-DriveInfo
+
+Returns information such as total space and free space on available drives.
+
 ### Enable-FileUtilityAlias
 
 Individual cmdlets will already have their own aliases.

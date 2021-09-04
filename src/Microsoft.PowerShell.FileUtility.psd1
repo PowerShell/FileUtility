@@ -19,6 +19,7 @@
         'Copy-DirectoryContent'
         'Get-DirectoryContent'
         'Get-DiskUsage'
+        'Get-DriveInfo'
         'Enable-FileUtilityAlias'
     )
     PrivateData = @{

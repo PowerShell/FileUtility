@@ -27,6 +27,7 @@ namespace Microsoft.PowerShell.FileUtility
 
     [Alias("gdu")]
     [Cmdlet(VerbsCommon.Get, "DiskUsage")]
+    [OutputType(typeof(DiskUsageInfo))]
     public sealed class GetDiskUsageCommand : PSCmdlet
     {
         /// <summary>
