@@ -14,7 +14,7 @@ This is an experimental module for optimizing using PowerShell with the file sys
 - Target compatibility with most common cases for existing file system cmdlet usage
 - Only expose built-in filtering that can leverage .NET API filtering (all other filtering should just use PowerShell pipeline)
 
-## Non-Goals**********************
+## Non-Goals
 
 - Full compatibility with existing cmdlets that work with the FileSystemProvider
 - Support for PowerShell provider paths
