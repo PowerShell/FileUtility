@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
     <ViewDefinitions>
+
         <View>
             <Name>Microsoft.PowerShell.FileUtility.DiskUsageInfo</Name>
             <ViewSelectedBy>
@@ -10,7 +11,7 @@
                 <AutoSize/>
                 <TableHeaders>
                     <TableColumnHeader>
-                        <Label>TotalSizeMb</Label>
+                        <Label>TotalSize</Label>
                         <Alignment>Right</Alignment>
                         <Width>10</Width>
                     </TableColumnHeader>
@@ -30,7 +31,14 @@
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
-                                <ScriptBlock>'{0:n2}' -f ($_.TotalSize / 1mb)</ScriptBlock>
+                                <ScriptBlock>
+                                    if ($_.TotalSize -ge 1gb) {
+                                        '{0:n2}' -f ($_.TotalSize / 1gb) + ' GB'
+                                    }
+                                    else {
+                                        '{0:n2}' -f ($_.TotalSize / 1mb) + ' MB'
+                                    }
+                                </ScriptBlock>
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>TotalFiles</PropertyName>
@@ -48,5 +56,71 @@
                 </TableRowEntries>
             </TableControl>
         </View>
+
+        <View>
+            <Name>System.IO.DriveInfo</Name>
+            <ViewSelectedBy>
+                <TypeName>System.IO.DriveInfo</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader>
+                        <Label>TotalSize</Label>
+                        <Alignment>Right</Alignment>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>AvailableSize</Label>
+                        <Alignment>Right</Alignment>
+                    </TableColumnHeader>
+                    <TableColumnHeader/>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>Name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>VolumeLabel</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>DriveType</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>DriveFormat</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>
+                                    if ($_.TotalSize -ge 1gb) {
+                                        '{0:n2}' -f ($_.TotalSize / 1gb) + ' GB'
+                                    }
+                                    else {
+                                        '{0:n2}' -f ($_.TotalSize / 1mb) + ' MB'
+                                    }
+                                </ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>
+                                    if ($_.AvailableFreespace -ge 1gb) {
+                                        '{0:n2}' -f ($_.AvailableFreespace / 1gb) + ' GB'
+                                    }
+                                    else {
+                                        '{0:n2}' -f ($_.AvailableFreespace / 1mb) + ' MB'
+                                    }
+                                </ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>RootDirectory</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+
     </ViewDefinitions>
 </Configuration>
