@@ -69,23 +69,29 @@ namespace Microsoft.PowerShell.FileUtility
             {
                 ProgressRecord progress = new ProgressRecord(0, "Calculating", $"Directory '{dir.Name}'");
                 progress.PercentComplete = 100 * calculatedDirs / totalDirectories;
-                WriteProgress(progress); 
+                WriteProgress(progress);
 
                 long currentDirDirs = 0;
                 currentDirSize = 0;
                 currentDirFiles = 0;
-                foreach (FileSystemInfo file in Util.EnumerateDirectory(dir.FullName, enumerationOptions, EnumType.All))
-                {
-                    if (file is FileInfo fileInfo)
+                try {
+                    foreach (FileSystemInfo file in Util.EnumerateDirectory(dir.FullName, enumerationOptions, EnumType.All))
                     {
-                        currentDirSize += fileInfo.Length;
-                        currentDirFiles++;
-                    }
+                        if (file is FileInfo fileInfo)
+                        {
+                            currentDirSize += fileInfo.Length;
+                            currentDirFiles++;
+                        }
 
-                    if (file is DirectoryInfo dirInfo)
-                    {
-                        currentDirDirs++;
+                        if (file is DirectoryInfo dirInfo)
+                        {
+                            currentDirDirs++;
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    WriteError(new ErrorRecord(e, e.Message, ErrorCategory.InvalidResult, dir));
                 }
 
                 WriteObject(new DiskUsageInfo(path: dir.FullName, totalSize: currentDirSize, totalFiles: currentDirFiles, totalDirectories: currentDirDirs));
