@@ -1,0 +1,144 @@
+name: $(Date:yyyyMMdd)$(Rev:.rr)
+
+variables:
+  # Don't download unneeded packages
+  - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+    value: 'true'
+  # Improve performance by not sending telemetry
+  - name: DOTNET_CLI_TELEMETRY_OPTOUT
+    value: 'true'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - /.dependabot/*
+      - /.poshchan/*
+      - /.github/**/*
+      - /.vscode/**/*
+      - /.vsts-ci/misc-analysis.yml
+      - /tools/**/*
+      - .editorconfig
+      - .gitattributes
+      - .gitignore
+      - /docs/**/*
+      - /CHANGELOG.md
+      - /CONTRIBUTING.md
+      - /README.md
+      - /LICENSE.txt
+      - /CODE_OF_CONDUCT.md
+
+resources:
+  repositories:
+  - repository: ComplianceRepo
+    type: github
+    endpoint: ComplianceGHRepo
+    name: PowerShell/compliance
+
+stages:
+- stage: Build
+  displayName: Build
+  jobs:
+  - job: 'ReleaseBuild'
+    displayName: Release Build
+    pool:
+      name: PowerShell1ES
+    steps:
+    - pwsh: |
+        # build agents get reused so we make sure to remove the old archive
+        Remove-Item -Path $(Build.SourcesDirectory)/SignedZip -Recurse -Force -ErrorAction Ignore
+        Remove-Item -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -Recurse -Force -ErrorAction Ignore
+        .\build.ps1 -Clean
+        Remove-Item .\out\*.pdb
+      displayName: Build
+    - publish: "out/"
+      artifact: out
+  - job: 'SignBuild'
+    variables:
+    - group: ESRP
+    displayName: Signing Build
+    dependsOn: 'ReleaseBuild'
+    pool:
+      name: PowerShell1ES
+    steps:
+    - powershell: |
+        Get-ChildItem -Path env:
+      displayName: Capture environment
+      condition: succeededOrFailed()
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Pipeline Artifacts'
+      inputs:
+        artifact: 'out'
+        path: $(Build.SourcesDirectory)/out
+
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        # the folder which contains the binaries to sign
+        buildOutputPath: $(Build.SourcesDirectory)/out
+        # the location to put the signed output
+        signOutputPath: $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility
+        # the certificate ID to use
+        # use the preview lifetime limited cert
+        certificateId: "CP-460906"
+        # The file pattern to use
+        # If not using minimatch: comma separated, with * supported
+        # If using minimatch: newline separated, with !, **, and * supported.
+        # See link in the useMinimatch comments.
+        pattern: 'Microsoft.PowerShell.*.dll,Microsoft.PowerShell.*.psd1,Microsoft.PowerShell.*.psm1'
+        # decides if the task should use minimatch for the pattern matching.
+        # https://github.com/isaacs/minimatch#features
+        useMinimatch: false
+  
+    - pwsh: |
+        New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
+        Compress-Archive -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
+      displayName: 'Compress archive'
+      condition: succeededOrFailed()
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetpath: $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility
+        artifactName: Signed
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetpath: $(Build.SourcesDirectory)/SignedZip
+        artifactName: SignedZip
+
+- stage: compliance
+  displayName: Compliance
+  dependsOn: Build
+  jobs:
+  - job: Compliance_Job
+    pool:
+      name: PowerShell1ES
+    steps:
+    - checkout: self
+    - checkout: ComplianceRepo
+    - download: current
+      artifact: Signed
+
+    - pwsh: |
+        Get-ChildItem -Path "$(Pipeline.Workspace)\Signed" -Recurse
+      displayName: Capture downloaded artifacts
+
+    - template: assembly-module-compliance.yml@ComplianceRepo
+      parameters:
+        # binskim
+        AnalyzeTarget: '$(Pipeline.Workspace)\*.dll'
+        AnalyzeSymPath: 'SRV*'
+        # component-governance
+        sourceScanPath: '$(Build.SourcesDirectory)'
+        # credscan
+        suppressionsFile: ''
+        # TermCheck
+        optionsRulesDBPath: ''
+        optionsFTPath: ''
+        # tsa-upload
+        codeBaseName: 'FileUtility_20210930'
+        # selections
+        APIScan: false # set to false when not using Windows APIs.
