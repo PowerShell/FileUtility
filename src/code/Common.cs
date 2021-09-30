@@ -59,7 +59,7 @@ namespace Microsoft.PowerShell.FileUtility
 
             if (IncludeHidden)
             {
-                _enumerationOptions.AttributesToSkip &= ~FileAttributes.Hidden | ~FileAttributes.System;
+                _enumerationOptions.AttributesToSkip &= ~(FileAttributes.Hidden | FileAttributes.System);
             }
 
             if (!TraverseSymlink)
