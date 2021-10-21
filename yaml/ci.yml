@@ -28,6 +28,11 @@ stages:
   - job: Build
     displayName: Build
     steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk'
+      inputs:
+        packageType: sdk
+        version: 6.x
     - pwsh: |
         ./build.ps1 -Clean
       displayName: Build
