@@ -98,7 +98,13 @@ stages:
         # decides if the task should use minimatch for the pattern matching.
         # https://github.com/isaacs/minimatch#features
         useMinimatch: false
-  
+
+    - ${{ if ne(variables.SkipSigning, 'True') }}:
+      - template: Sbom.yml@ComplianceRepo
+        parameters:
+          BuildDropPath: $(signOutputPath)
+          Build_Repository_Uri: 'https://github.com/powershell/fileutility'
+
     - pwsh: |
         New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
         Compress-Archive -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
