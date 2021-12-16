@@ -102,7 +102,7 @@ stages:
     - ${{ if ne(variables.SkipSigning, 'True') }}:
       - template: Sbom.yml@ComplianceRepo
         parameters:
-          BuildDropPath: $(signOutputPath)
+          BuildDropPath: $(Build.SourcesDirectory)/out
           Build_Repository_Uri: 'https://github.com/powershell/fileutility'
 
     - pwsh: |
