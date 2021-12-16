@@ -102,18 +102,18 @@ stages:
     - ${{ if ne(variables.SkipSigning, 'True') }}:
       - template: Sbom.yml@ComplianceRepo
         parameters:
-          BuildDropPath: $(Build.SourcesDirectory)/out
+          BuildDropPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
           Build_Repository_Uri: 'https://github.com/powershell/fileutility'
 
     - pwsh: |
         New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
-        Compress-Archive -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
+        Compress-Archive -Path $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
       displayName: 'Compress archive'
       condition: succeededOrFailed()
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetpath: $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility
+        targetpath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
         artifactName: Signed
 
     - task: PublishPipelineArtifact@1
