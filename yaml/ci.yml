@@ -21,12 +21,12 @@ resources:
 
 stages:
 - stage: Build
-  pool:
-    vmImage: windows-latest
   displayName: Build Microsoft.PowerShell.FileUtility
   jobs:
   - job: Build
     displayName: Build
+    pool:
+      vmImage: windows-latest
     steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk'

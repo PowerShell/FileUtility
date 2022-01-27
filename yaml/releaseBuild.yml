@@ -45,7 +45,9 @@ stages:
   - job: 'ReleaseBuild'
     displayName: Release Build
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk'
@@ -72,7 +74,9 @@ stages:
     displayName: Signing Build
     dependsOn: 'ReleaseBuild'
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - powershell: |
         Get-ChildItem -Path env:
@@ -133,7 +137,9 @@ stages:
   jobs:
   - job: Compliance_Job
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - checkout: self
     - checkout: ComplianceRepo

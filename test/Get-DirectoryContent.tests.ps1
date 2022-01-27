@@ -11,7 +11,7 @@ Describe 'Get-DirectoryContent tests' {
         foreach ($item in $dirStructure) {
             $params = @{
                 ItemType = $item.ItemType;
-                Name = (Join-Path $TestDrive $item.Name);
+                Path = (Join-Path $TestDrive $item.Name);
             }
 
             if ($item.ItemType -eq 'SymbolicLInk') {
@@ -22,19 +22,26 @@ Describe 'Get-DirectoryContent tests' {
         }
     }
 
-    It 'Output should be same as Get-ChildItem with Recurse <Recurse> for path: <Path>' -TestCases @(
-        @{ Path = $TestDrive; Recurse = $false }
-        @{ Path = '.'       ; Recurse = $false }
-        @{ Path = $TestDrive; Recurse = $true }
-        @{ Path = '.'       ; Recurse = $true }
+    It 'Output should be same as Get-ChildItem with Recurse <Recurse> for absolute path: <AbsolutePath>' -TestCases @(
+        @{ AbsolutePath = $true ; Recurse = $false }
+        @{ AbsolutePath = $false; Recurse = $false }
+        @{ AbsolutePath = $true ; Recurse = $true }
+        @{ AbsolutePath = $false; Recurse = $true }
     ){
-        param($Path, $Recurse)
+        param($AbsolutePath, $Recurse)
 
         try {
             Push-Location $TestDrive
-            $gdc = Get-DirectoryContent -Path $Path -Recurse:$Recurse | Out-String
+            if ($AbsolutePath) {
+                $Path = $TestDrive
+            }
+            else {
+                $Path = '.'
+            }
+
+            $gdc = Get-DirectoryContent -Path $Path -Recurse:$Recurse | Sort-Object Name | Out-String
             $gdc.Count | Should -BeGreaterThan 0
-            $gci = Get-ChildItem -Path $Path -Recurse:$Recurse | Out-String
+            $gci = Get-ChildItem -Path $Path -Recurse:$Recurse | Sort-Object Name | Out-String
             $gdc | Should -BeExactly $gci
         }
         finally {
