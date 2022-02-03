@@ -107,13 +107,12 @@ stages:
         # https://github.com/isaacs/minimatch#features
         useMinimatch: false
 
-    - ${{ if ne(variables.SkipSigning, 'True') }}:
-      - template: Sbom.yml@ComplianceRepo
-        parameters:
-          BuildDropPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
-          Build_Repository_Uri: 'https://github.com/powershell/fileutility'
-          PackageName: Microsoft.PowerShell.FileUtility
-          PackageVersion: $(PackageVersion)
+    - template: Sbom.yml@ComplianceRepo
+      parameters:
+        BuildDropPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
+        Build_Repository_Uri: 'https://github.com/powershell/fileutility'
+        PackageName: Microsoft.PowerShell.FileUtility
+        PackageVersion: $(PackageVersion)
 
     - pwsh: |
         New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
