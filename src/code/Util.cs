@@ -13,6 +13,37 @@ namespace Microsoft.PowerShell.FileUtility
     {
         internal const string FileSystemProviderPrefix = "Microsoft.PowerShell.Core\\FileSystem::";
 
+        internal static List<FileSystemInfo> EnumerateDirectory(DirectoryInfo dir, string match, EnumerationOptions options, EnumType enumType)
+        {
+            List<FileSystemInfo> items = new List<FileSystemInfo>();
+            switch (enumType)
+            {
+                case EnumType.File:
+                    items.AddRange(dir.EnumerateFiles(match, options));
+                    items.Sort((a, b) => a.Name.CompareTo(b.Name));
+                    break;
+
+                case EnumType.Directory:
+                    items.AddRange(dir.EnumerateDirectories(match, options));
+                    items.Sort((a, b) => a.Name.CompareTo(b.Name));
+                    break;
+
+                case EnumType.All:
+                    items.AddRange(dir.EnumerateDirectories(match, options));
+                    items.Sort((a, b) => a.Name.CompareTo(b.Name));
+                    List<FileSystemInfo> files = new List<FileSystemInfo>();
+                    files.AddRange(dir.EnumerateFiles(match, options));
+                    files.Sort((a, b) => a.Name.CompareTo(b.Name));
+                    items.AddRange(files);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("Unknown enum type!");
+            }
+
+            return items;
+        }
+
         internal static IEnumerable<FileSystemInfo> EnumerateDirectory(string path, EnumerationOptions options, EnumType enumType)
         {
             if (path.Contains("*") || path.Contains("?"))
@@ -25,26 +56,7 @@ namespace Microsoft.PowerShell.FileUtility
             else
                 {
                 DirectoryInfo dir = new DirectoryInfo(path);
-                IEnumerable<FileSystemInfo> files;
-                switch (enumType)
-                {
-                    case EnumType.File:
-                        files = dir.EnumerateFiles("*", options);
-                        break;
-
-                    case EnumType.Directory:
-                        files = dir.EnumerateDirectories("*", options);
-                        break;
-
-                    case EnumType.All:
-                        files = dir.EnumerateFileSystemInfos("*", options);
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException("Unknown enum type!");
-                }
-
-                foreach (FileSystemInfo file in files)
+                foreach (FileSystemInfo file in EnumerateDirectory(dir, "*", options, enumType))
                 {
                     yield return file;
                 }
@@ -72,26 +84,7 @@ namespace Microsoft.PowerShell.FileUtility
                         // if there was a folder wildcard, we don't want to enumerate the root folder
                         if (!subPathWildcard && i == segments.Length - 1)
                         {
-                            IEnumerable<FileSystemInfo> files;
-                            switch (enumType)
-                            {
-                                case EnumType.File:
-                                    files = dir.EnumerateFiles(segments[i], options);
-                                    break;
-
-                                case EnumType.Directory:
-                                    files = dir.EnumerateDirectories(segments[i], options);
-                                    break;
-
-                                case EnumType.All:
-                                    files = dir.EnumerateFileSystemInfos(segments[i], options);
-                                    break;
-
-                                default:
-                                    throw new ArgumentOutOfRangeException("Unknown enum type!");
-                            }
-
-                            foreach (FileSystemInfo file in files)
+                            foreach (FileSystemInfo file in EnumerateDirectory(dir, segments[i], options, enumType))
                             {
                                 yield return file;
                             }
