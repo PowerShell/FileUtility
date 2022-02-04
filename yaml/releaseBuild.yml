@@ -45,7 +45,9 @@ stages:
   - job: 'ReleaseBuild'
     displayName: Release Build
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk'
@@ -59,6 +61,10 @@ stages:
         Remove-Item -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -Recurse -Force -ErrorAction Ignore
         .\build.ps1 -Clean
         Remove-Item .\out\*.pdb
+        $packageVersion = (Import-PowerShellDataFile $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility/Microsoft.PowerShell.FileUtility.psd1).ModuleVersion
+        $vstsCommandString = "vso[task.setvariable variable=PackageVersion]$packageVersion"
+        Write-Host ("sending " + $vstsCommandString)
+        Write-Host "##$vstsCommandString"
       displayName: Build
     - publish: "out/"
       artifact: out
@@ -68,7 +74,9 @@ stages:
     displayName: Signing Build
     dependsOn: 'ReleaseBuild'
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - powershell: |
         Get-ChildItem -Path env:
@@ -98,16 +106,23 @@ stages:
         # decides if the task should use minimatch for the pattern matching.
         # https://github.com/isaacs/minimatch#features
         useMinimatch: false
-  
+
+    - template: Sbom.yml@ComplianceRepo
+      parameters:
+        BuildDropPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
+        Build_Repository_Uri: 'https://github.com/powershell/fileutility'
+        PackageName: Microsoft.PowerShell.FileUtility
+        PackageVersion: $(PackageVersion)
+
     - pwsh: |
         New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
-        Compress-Archive -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
+        Compress-Archive -Path $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
       displayName: 'Compress archive'
       condition: succeededOrFailed()
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetpath: $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility
+        targetpath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
         artifactName: Signed
 
     - task: PublishPipelineArtifact@1
@@ -121,7 +136,9 @@ stages:
   jobs:
   - job: Compliance_Job
     pool:
-      name: 1ES
+      name: PowerShell1ES
+      demands:
+      - ImageOverride -equals PSMMS2019-Secure
     steps:
     - checkout: self
     - checkout: ComplianceRepo
