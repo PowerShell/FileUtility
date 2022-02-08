@@ -45,7 +45,7 @@ stages:
   - job: 'ReleaseBuild'
     displayName: Release Build
     pool:
-      name: PowerShell1ES
+      name: 1ES
       demands:
       - ImageOverride -equals PSMMS2019-Secure
     steps:
@@ -74,7 +74,7 @@ stages:
     displayName: Signing Build
     dependsOn: 'ReleaseBuild'
     pool:
-      name: PowerShell1ES
+      name: 1ES
       demands:
       - ImageOverride -equals PSMMS2019-Secure
     steps:
