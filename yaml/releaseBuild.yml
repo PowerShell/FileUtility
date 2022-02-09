@@ -42,8 +42,10 @@ stages:
 - stage: Build
   displayName: Build
   jobs:
-  - job: 'ReleaseBuild'
-    displayName: Release Build
+  - job: 'BuildAndSign'
+    variables:
+    - group: ESRP
+    displayName: Build and Sign
     pool:
       name: 1ES
       demands:
@@ -55,6 +57,10 @@ stages:
         packageType: sdk
         includePreviewVersions: true
         version: 6.x
+    - powershell: |
+        Get-ChildItem -Path env:
+      displayName: Capture environment
+      condition: succeededOrFailed()
     - pwsh: |
         # build agents get reused so we make sure to remove the old archive
         Remove-Item -Path $(Build.SourcesDirectory)/SignedZip -Recurse -Force -ErrorAction Ignore
@@ -68,26 +74,6 @@ stages:
       displayName: Build
     - publish: "out/"
       artifact: out
-  - job: 'SignBuild'
-    variables:
-    - group: ESRP
-    displayName: Signing Build
-    dependsOn: 'ReleaseBuild'
-    pool:
-      name: 1ES
-      demands:
-      - ImageOverride -equals PSMMS2019-Secure
-    steps:
-    - powershell: |
-        Get-ChildItem -Path env:
-      displayName: Capture environment
-      condition: succeededOrFailed()
-
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download Pipeline Artifacts'
-      inputs:
-        artifact: 'out'
-        path: $(Build.SourcesDirectory)/out
 
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
