@@ -1,0 +1,10 @@
+# ChangeLog
+
+## 0.1.1
+
+Added sorting to match `Get-ChildItem` output
+Refactored `GetDirectoryContent` to remove duplicate code
+
+## 0.1.0
+
+Initial release

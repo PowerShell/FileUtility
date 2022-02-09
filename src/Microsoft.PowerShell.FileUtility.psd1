@@ -6,7 +6,7 @@
     NestedModules = @(
         './Microsoft.PowerShell.FileUtility.psm1'
     )
-    ModuleVersion = '0.1.0'
+    ModuleVersion = '0.1.1'
     CompatiblePSEditions = @('Core')
     GUID = 'c0d47756-1042-40ac-8290-1ea5b9f34977'
     Author = 'Microsoft Corporation'
