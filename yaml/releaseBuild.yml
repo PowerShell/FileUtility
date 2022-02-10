@@ -64,7 +64,8 @@ stages:
     - pwsh: |
         # build agents get reused so we make sure to remove the old archive
         Remove-Item -Path $(Build.SourcesDirectory)/SignedZip -Recurse -Force -ErrorAction Ignore
-        Remove-Item -Path $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility -Recurse -Force -ErrorAction Ignore
+        Remove-Item -Path $(Build.SourcesDirectory)/out -Recurse -Force -ErrorAction Ignore
+        Remove-Item -Path $(Build.SourcesDirectory)/signed -Recurse -Force -ErrorAction Ignore
         .\build.ps1 -Clean
         Remove-Item .\out\*.pdb
         $packageVersion = (Import-PowerShellDataFile $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility/Microsoft.PowerShell.FileUtility.psd1).ModuleVersion
@@ -78,9 +79,9 @@ stages:
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
         # the folder which contains the binaries to sign
-        buildOutputPath: $(Build.SourcesDirectory)/out
+        buildOutputPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
         # the location to put the signed output
-        signOutputPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
+        signOutputPath: $(Build.SourcesDirectory)/signed/Microsoft.PowerShell.FileUtility
         # the certificate ID to use
         # use the preview lifetime limited cert
         certificateId: "CP-460906"
@@ -102,13 +103,13 @@ stages:
 
     - pwsh: |
         New-Item -Path $(Build.SourcesDirectory)/SignedZip -ItemType Directory -ErrorAction Ignore
-        Compress-Archive -Path $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
+        Compress-Archive -Path $(Build.SourcesDirectory)/signed/Microsoft.PowerShell.FileUtility -DestinationPath $(Build.SourcesDirectory)/SignedZip/Microsoft.PowerShell.FileUtility.zip -Force
       displayName: 'Compress archive'
       condition: succeededOrFailed()
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetpath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
+        targetpath: $(Build.SourcesDirectory)/signed
         artifactName: Signed
 
     - task: PublishPipelineArtifact@1
