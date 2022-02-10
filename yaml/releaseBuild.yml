@@ -80,7 +80,7 @@ stages:
         # the folder which contains the binaries to sign
         buildOutputPath: $(Build.SourcesDirectory)/out
         # the location to put the signed output
-        signOutputPath: $(Build.SourcesDirectory)/Microsoft.PowerShell.FileUtility
+        signOutputPath: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.FileUtility
         # the certificate ID to use
         # use the preview lifetime limited cert
         certificateId: "CP-460906"
